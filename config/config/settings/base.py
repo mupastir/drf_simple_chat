@@ -30,6 +30,9 @@ DEBUG = os.environ.get('DEBUG')
 
 ALLOWED_HOSTS = ['*']
 
+# Add custom user model
+
+AUTH_USER_MODEL = 'users.User'
 
 # Application definition
 

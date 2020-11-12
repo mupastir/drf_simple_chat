@@ -5,7 +5,7 @@ from users.models import User
 
 
 class Thread(UUIDTimeStampModel):
-    participants = models.ManyToManyField(User, null=True, blank=True, related_name='participants')
+    participants = models.ManyToManyField(User)
 
     def __str__(self):
         return self.id
