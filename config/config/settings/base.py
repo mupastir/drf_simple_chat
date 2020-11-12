@@ -33,15 +33,23 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+)
+
+LOCAL_APPS = (
     'simplechat.apps.SimplechatConfig',
-]
+    'users.apps.UsersConfig',
+)
+
+THIRD_PART_APPS = ()
+
+INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PART_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
