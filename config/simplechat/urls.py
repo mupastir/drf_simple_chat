@@ -20,4 +20,9 @@ urlpatterns = [
             view=views.GetCreateMessages.as_view(),
             name='get_create_messages',
     ),
+    url(
+            regex=r'^user/(?P<pk>{0})/messages/count/$'.format(uuid_regex),
+            view=views.UsersMessagesCount.as_view(),
+            name='count_user_messages',
+    ),
 ]

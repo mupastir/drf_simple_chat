@@ -4,7 +4,9 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import DestroyAPIView, CreateAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from simplechat import serializers
 from simplechat.models import Thread, Message
@@ -100,3 +102,25 @@ class GetCreateMessages(ListCreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class UsersMessagesCount(APIView):
+
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [JSONRenderer]
+
+    def validate(self, user_pk):
+        if not User.objects.filter(id=user_pk).exists():
+            raise ValidationError({"error": f"User with id {user_pk} doesn't exist."})
+
+    def get(self, request, *args, **kwargs):
+        user_pk = kwargs['pk']
+        self.validate(user_pk)
+        messages = Message.objects.filter(thread__participants__id=user_pk).exclude(sender_id=user_pk)
+        is_read = request.query_params.get('is_read', None)
+        if is_read == 'true':
+            messages = messages.filter(is_read=True)
+        if is_read == 'false':
+            messages = messages.filter(is_read=False)
+        content = {'messages_count': messages.count()}
+        return Response(data=content, status=status.HTTP_200_OK)
