@@ -58,6 +58,7 @@ THIRD_PART_APPS = (
     'allauth',
     'allauth.account',
     'rest_auth.registration',
+    'django_extensions',
 )
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PART_APPS
@@ -147,6 +148,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# SHELL_PLUS
+SHELL_PLUS = "ipython"
 
 # REST Framework
 

@@ -8,7 +8,7 @@ class Thread(UUIDTimeStampModel):
     participants = models.ManyToManyField(User, related_name='participants')
 
     def __str__(self):
-        return self.id
+        return f'{self.id}'
 
 
 class Message(UUIDTimeStampModel):
@@ -16,3 +16,6 @@ class Message(UUIDTimeStampModel):
     text = models.TextField()
     thread = models.ForeignKey(Thread, on_delete=models.CASCADE)
     is_read = models.BooleanField()
+
+    def __str__(self):
+        return f'{self.created}|{self.sender}|{self.text[:10]}...'
