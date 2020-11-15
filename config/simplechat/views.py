@@ -19,7 +19,7 @@ class CreateDestroyThread(CreateAPIView, DestroyAPIView):
 
     def validate(self):
         if 'participants' not in self.request.data:
-            raise ValidationError({"error": "participants"})
+            raise ValidationError({"error": "Participants not set"})
         participants = self.request.data['participants']
         if not isinstance(participants, list):
             raise ValidationError({"error": "Participants should be a list of ids"})
@@ -115,7 +115,6 @@ class GetCreateMessages(ListCreateAPIView):
 class UsersMessagesCount(APIView):
 
     permission_classes = [IsAuthenticated]
-    renderer_classes = [JSONRenderer]
 
     def validate(self, user_pk):
         if not User.objects.filter(id=user_pk).exists():
@@ -132,3 +131,37 @@ class UsersMessagesCount(APIView):
             messages = messages.filter(is_read=False)
         content = {'messages_count': messages.count()}
         return Response(data=content, status=status.HTTP_200_OK)
+
+
+class MarkMessagesRead(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def validate(self, user_pk):
+        if not User.objects.filter(id=user_pk).exists():
+            raise ValidationError({"error": f"User with id {user_pk} doesn't exist."})
+        if self.request.method == 'POST':
+            if 'messages' not in self.request.data:
+                raise ValidationError({"error": "Messages not set"})
+            messages = self.request.data['messages']
+            try:
+                [UUID(message_id) for message_id in messages]
+            except ValueError:
+                raise ValidationError({"error": "Not valid values of messages' ids."})
+            if len(messages) != Message.objects.filter(
+                    id__in=messages,
+                    thread__participants__id=user_pk
+            ).exclude(sender_id=user_pk).count():
+                raise ValidationError({"error": f"Not all messages related to current user."})
+
+    def post(self, request, *args, **kwargs):
+        user_pk = kwargs['pk']
+        import ipdb
+        ipdb.set_trace()
+        self.validate(user_pk)
+        messages = Message.objects.filter(id__in=request.data['messages'])
+        for message in messages:
+            message.is_read = True
+        Message.objects.bulk_update(messages, ['is_read'])
+        serialized = serializers.DisplayMessageSerializer(messages, many=True)
+        return Response(data=serialized.data, status=status.HTTP_200_OK)

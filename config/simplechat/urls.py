@@ -25,4 +25,9 @@ urlpatterns = [
             view=views.UsersMessagesCount.as_view(),
             name='count_user_messages',
     ),
+    url(
+            regex=r'^user/(?P<pk>{0})/messages/read/$'.format(uuid_regex),
+            view=views.MarkMessagesRead.as_view(),
+            name='mark_messages_as_read',
+    ),
 ]

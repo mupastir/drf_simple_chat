@@ -25,7 +25,7 @@ class DisplayMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['id', 'text', 'thread', 'sender', 'created']
+        fields = ['id', 'text', 'thread', 'sender', 'created', 'is_read']
 
 
 class CreateMessageSerializer(serializers.ModelSerializer):
