@@ -83,7 +83,7 @@ class GetCreateMessages(ListCreateAPIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.MessageSerializer
-    lookup_field = 'thread__id'
+    lookup_field = 'thread__id__in'
     queryset = Message.objects.all()
 
     def get(self, request, *args, **kwargs):
