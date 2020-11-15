@@ -15,7 +15,7 @@ class Message(UUIDTimeStampModel):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
     thread = models.ForeignKey(Thread, on_delete=models.CASCADE)
-    is_read = models.BooleanField()
+    is_read = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.created}|{self.sender}|{self.text[:10]}...'

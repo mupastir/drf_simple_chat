@@ -2,12 +2,12 @@ from uuid import UUID
 
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import DestroyAPIView, CreateAPIView, ListAPIView
+from rest_framework.generics import DestroyAPIView, CreateAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from simplechat import serializers
-from simplechat.models import Thread
+from simplechat.models import Thread, Message
 from users.models import User
 
 
@@ -59,3 +59,44 @@ class ListUsersThreads(ListAPIView):
     def get(self, request, *args, **kwargs):
         self.validate(kwargs['pk'])
         return super(ListUsersThreads, self).get(request, args, kwargs)
+
+
+class GetCreateMessages(ListCreateAPIView):
+
+    def validate(self, thread_pk):
+        if not Thread.objects.filter(id=thread_pk).exists():
+            raise ValidationError({"error": f"Thread with id {thread_pk} doesn't exist."})
+        if self.request.method == "POST":
+            if 'sender' not in self.request.data:
+                raise ValidationError(
+                    {"error": f"sender should be set in data"}
+                )
+            if 'text' not in self.request.data:
+                raise ValidationError(
+                    {"error": f"sender should be set in data"}
+                )
+            if not Thread.objects.filter(pk=thread_pk,
+                                         participants__id=self.request.data['sender']).exists():
+                raise ValidationError(
+                    {"error": f"User with id {self.request.data['sender']} doesn't have access to this thread."}
+                )
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.MessageSerializer
+    lookup_field = 'thread__id'
+    queryset = Message.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        self.validate(kwargs['pk'])
+        return super(GetCreateMessages, self).get(request, args, kwargs)
+
+    def create(self, request, *args, **kwargs):
+        thread_id = kwargs['pk']
+        self.validate(thread_id)
+        data = request.data
+        data['thread'] = thread_id
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

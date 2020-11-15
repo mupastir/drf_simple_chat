@@ -11,8 +11,13 @@ urlpatterns = [
             name='create_destroy_thread',
     ),
     url(
-            regex=r'^threads/user/(?P<pk>{0})/$'.format(uuid_regex),
+            regex=r'^user/(?P<pk>{0})/threads/$'.format(uuid_regex),
             view=views.ListUsersThreads.as_view(),
             name='list_threads_by_user',
+    ),
+    url(
+            regex=r'^thread/(?P<pk>{0})/messages/$'.format(uuid_regex),
+            view=views.GetCreateMessages.as_view(),
+            name='get_create_messages',
     ),
 ]
