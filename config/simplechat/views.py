@@ -84,13 +84,21 @@ class GetCreateMessages(ListCreateAPIView):
                 )
 
     permission_classes = [IsAuthenticated]
-    serializer_class = serializers.MessageSerializer
+    serializer_class = serializers.CreateMessageSerializer
     lookup_field = 'thread__id__in'
     queryset = Message.objects.all()
 
-    def get(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         self.validate(kwargs['pk'])
-        return super(GetCreateMessages, self).get(request, args, kwargs)
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = serializers.DisplayMessageSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializers.DisplayMessageSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         thread_id = kwargs['pk']

@@ -21,9 +21,15 @@ class ListThreadSerializer(serializers.ModelSerializer):
         return str(thread.message_set.last())
 
 
-class MessageSerializer(serializers.ModelSerializer):
+class DisplayMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['text', 'thread', 'sender']
-        write_only = 'thread'
+        fields = ['id', 'text', 'thread', 'sender', 'created']
+
+
+class CreateMessageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Message
+        fields = ['text', 'sender', 'thread']
